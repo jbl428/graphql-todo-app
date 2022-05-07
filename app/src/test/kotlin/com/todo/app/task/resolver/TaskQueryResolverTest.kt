@@ -4,8 +4,10 @@ import com.ninjasquad.springmockk.MockkBean
 import com.todo.app.extension.GraphqlBody
 import com.todo.app.extension.gqlRequest
 import com.todo.app.extension.withSuccess
+import com.todo.app.task.repository.dto.TaskByUserDto
 import com.todo.app.task.repository.dto.TaskWithUserDto
 import com.todo.app.task.service.TaskQueryService
+import com.todo.app.user.repository.dto.UserDto
 import io.mockk.every
 import java.time.LocalDateTime
 import org.junit.jupiter.api.Nested
@@ -23,6 +25,64 @@ constructor(
   private val webTestClient: WebTestClient,
   @MockkBean private val taskQueryService: TaskQueryService,
 ) {
+  @Nested
+  inner class Todos {
+    @Test
+    fun `todo 목록를 반환한다`() {
+      // given
+      val todoId = 1234L
+      val query =
+        GraphqlBody(
+          """query {
+            |  todos {
+            |    id 
+            |    createdAt
+            |    updatedAt
+            |    name
+            |    completed
+            |    completedAt
+            |    user {
+            |      name
+            |      age
+            |    }
+            |  }
+            |}
+            """.trimMargin()
+        )
+      val taskDto =
+        TaskByUserDto(
+          id = todoId,
+          createdAt = LocalDateTime.of(2022, 1, 1, 0, 0),
+          updatedAt = LocalDateTime.of(2022, 2, 2, 0, 0),
+          name = "taskName",
+          completed = true,
+          completedAt = LocalDateTime.of(2022, 3, 3, 0, 0),
+        )
+      val userDto =
+        object : UserDto {
+          override val name: String = "userName"
+          override val age: Int = 20
+        }
+
+      every { taskQueryService.find(1) } returns Pair(listOf(taskDto), userDto)
+
+      // when
+      val response = webTestClient.gqlRequest(query)
+
+      // then
+      response.withSuccess("todos") {
+        expect("[0].id").isEqualTo(taskDto.id)
+        expect("[0].createdAt").isEqualTo("2022-01-01 00:00:00")
+        expect("[0].updatedAt").isEqualTo("2022-02-02 00:00:00")
+        expect("[0].name").isEqualTo(taskDto.name)
+        expect("[0].completed").isEqualTo(taskDto.completed)
+        expect("[0].completedAt").isEqualTo("2022-03-03 00:00:00")
+        expect("[0].user.name").isEqualTo(userDto.name)
+        expect("[0].user.age").isEqualTo(userDto.age)
+      }
+    }
+  }
+
   @Nested
   inner class Todo {
     @Test

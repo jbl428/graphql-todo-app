@@ -1,6 +1,8 @@
 package com.todo.app.task.resolver.dto
 
+import com.todo.app.task.repository.dto.TaskByUserDto
 import com.todo.app.task.repository.dto.TaskWithUserDto
+import com.todo.app.user.repository.dto.UserDto
 import com.todo.app.user.resolver.dto.UserInfo
 import com.todo.lib.entity.task.Task
 import java.time.LocalDateTime
@@ -35,6 +37,17 @@ data class Todo(
         createdAt = dto.createdAt,
         updatedAt = dto.updatedAt,
         user = UserInfo(dto.userName, dto.age),
+      )
+
+    fun by(taskByUserDto: TaskByUserDto, userDto: UserDto): Todo =
+      Todo(
+        name = taskByUserDto.name,
+        completed = taskByUserDto.completed,
+        id = taskByUserDto.id.toInt(),
+        completedAt = taskByUserDto.completedAt,
+        createdAt = taskByUserDto.createdAt,
+        updatedAt = taskByUserDto.updatedAt,
+        user = UserInfo(userDto.name, userDto.age),
       )
   }
 }
