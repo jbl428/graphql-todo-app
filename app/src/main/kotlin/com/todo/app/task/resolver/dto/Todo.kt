@@ -1,5 +1,6 @@
 package com.todo.app.task.resolver.dto
 
+import com.todo.app.task.repository.dto.TaskWithUserDto
 import com.todo.app.user.resolver.dto.UserInfo
 import com.todo.lib.entity.task.Task
 import java.time.LocalDateTime
@@ -14,7 +15,7 @@ data class Todo(
   val user: UserInfo,
 ) {
   companion object {
-    fun byTask(task: Task): Todo =
+    fun by(task: Task): Todo =
       Todo(
         name = task.name,
         completed = task.completed,
@@ -23,6 +24,17 @@ data class Todo(
         createdAt = task.createdAt,
         updatedAt = task.updatedAt,
         user = UserInfo(task.user.name, task.user.age),
+      )
+
+    fun by(dto: TaskWithUserDto): Todo =
+      Todo(
+        name = dto.taskName,
+        completed = dto.completed,
+        id = dto.id.toInt(),
+        completedAt = dto.completedAt,
+        createdAt = dto.createdAt,
+        updatedAt = dto.updatedAt,
+        user = UserInfo(dto.userName, dto.age),
       )
   }
 }
