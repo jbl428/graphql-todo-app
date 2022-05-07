@@ -24,7 +24,7 @@ internal class TaskQueryServiceTest {
   @MockK private lateinit var userRepository: UserRepository
 
   @Nested
-  inner class FindAll {
+  inner class Find {
     @Test
     fun `존재하지 않는 사용자로 요청 시 에러가 발생한다`() {
       // given
@@ -33,7 +33,7 @@ internal class TaskQueryServiceTest {
       every { userRepository.findOne(userId) } returns null
 
       // when
-      val result = shouldThrow<IllegalArgumentException> { taskQueryService.findAll(userId) }
+      val result = shouldThrow<IllegalArgumentException> { taskQueryService.find(userId) }
 
       // then
       result.message shouldBe "사용자가 존재하지 않습니다"
@@ -72,7 +72,7 @@ internal class TaskQueryServiceTest {
       every { taskQueryRepository.findByUser(userId) } returns expectedTasks
 
       // when
-      val (tasks, user) = taskQueryService.findAll(userId)
+      val (tasks, user) = taskQueryService.find(userId)
 
       // then
       tasks shouldBe expectedTasks

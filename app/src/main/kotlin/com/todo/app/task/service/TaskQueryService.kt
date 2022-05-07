@@ -12,7 +12,7 @@ class TaskQueryService(
   private val userRepository: UserRepository,
 ) {
 
-  fun findAll(userId: Long): Pair<List<TaskByUserDto>, UserDto> {
+  fun find(userId: Long): Pair<List<TaskByUserDto>, UserDto> {
     val user = userRepository.findOne(userId)
     requireNotNull(user) { "사용자가 존재하지 않습니다" }
 
