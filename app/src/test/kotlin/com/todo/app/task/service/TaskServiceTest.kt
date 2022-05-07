@@ -2,9 +2,11 @@ package com.todo.app.task.service
 
 import com.todo.app.task.repository.TaskQueryRepository
 import com.todo.app.task.repository.TaskRepository
+import com.todo.app.task.service.dto.UpdateTaskDto
 import com.todo.lib.entity.task.Task
 import com.todo.lib.entity.user.User
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -12,6 +14,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.justRun
 import io.mockk.verify
+import java.time.LocalDateTime
 import javax.persistence.NoResultException
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -64,6 +67,100 @@ internal class TaskServiceTest {
 
       // then
       verify { taskRepository.deleteById(taskId) }
+    }
+  }
+
+  @Nested
+  inner class Update {
+    @Test
+    fun `존재하지 않는 task 를 제공하면 에러가 발생한다`() {
+      // given
+      val dto = UpdateTaskDto(taskId = 10, userId = 20, name = "task", completed = false)
+
+      every { taskQueryRepository.findOneByUser(dto.taskId, dto.userId) } throws
+        NoResultException("not found")
+
+      // when
+      val result = shouldThrow<NoResultException> { taskService.update(dto) }
+
+      // then
+      result.message shouldBe "not found"
+    }
+
+    @Test
+    fun `기존 task 의 이름과 완료여부 항목을 갱신한다`() {
+      // given
+      val task =
+        Task(
+            name = "task",
+            completed = false,
+            completedAt = null,
+            user = User(name = "user", age = 30).also { it.id = 456 },
+          )
+          .apply { id = 123L }
+      val dto =
+        UpdateTaskDto(taskId = task.id, userId = task.user.id, name = "new name", completed = true)
+
+      every { taskQueryRepository.findOneByUser(dto.taskId, dto.userId) } returns task
+      every { taskRepository.save(task) } returns task
+
+      // when
+      val result = taskService.update(dto)
+
+      // then
+      verify { taskRepository.save(task) }
+
+      result.name shouldBe dto.name
+      result.completed shouldBe dto.completed
+    }
+
+    @Test
+    fun `미완료된 task 를 완료로 변경하면 완료시간이 변경된다`() {
+      // given
+      val task =
+        Task(
+            name = "task",
+            completed = false,
+            completedAt = null,
+            user = User(name = "user", age = 30).also { it.id = 456 },
+          )
+          .apply { id = 123L }
+      val dto =
+        UpdateTaskDto(taskId = task.id, userId = task.user.id, name = "new name", completed = true)
+      val expectedCompletedAt = LocalDateTime.now()
+
+      every { taskQueryRepository.findOneByUser(dto.taskId, dto.userId) } returns task
+      every { taskRepository.save(task) } returns task
+
+      // when
+      val result = taskService.update(dto, expectedCompletedAt)
+
+      // then
+      result.completedAt shouldBe expectedCompletedAt
+    }
+
+    @Test
+    fun `완료된 task 를 미완료로 변경하면 완료시간이 null 이 된다`() {
+      // given
+      val task =
+        Task(
+            name = "task",
+            completed = true,
+            completedAt = LocalDateTime.now(),
+            user = User(name = "user", age = 30).also { it.id = 456 },
+          )
+          .apply { id = 123L }
+      val dto =
+        UpdateTaskDto(taskId = task.id, userId = task.user.id, name = "new name", completed = false)
+
+      every { taskQueryRepository.findOneByUser(dto.taskId, dto.userId) } returns task
+      every { taskRepository.save(task) } returns task
+
+      // when
+      val result = taskService.update(dto)
+
+      // then
+      result.completedAt.shouldBeNull()
     }
   }
 }

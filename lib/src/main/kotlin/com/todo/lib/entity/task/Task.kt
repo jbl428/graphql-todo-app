@@ -15,4 +15,11 @@ class Task(
   @Column(nullable = false) var completed: Boolean,
   @Column var completedAt: LocalDateTime?,
   @ManyToOne(fetch = FetchType.LAZY) @field:NotNull var user: User,
-) : BaseEntity()
+) : BaseEntity() {
+
+  fun update(name: String, completed: Boolean, completedAt: LocalDateTime?) {
+    this.name = name
+    this.completed = completed
+    this.completedAt = completedAt
+  }
+}
