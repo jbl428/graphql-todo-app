@@ -8,7 +8,9 @@ import com.todo.lib.entity.task.Task
 import com.todo.lib.entity.user.User
 import java.time.LocalDateTime
 import javax.persistence.EntityManager
+import org.springframework.stereotype.Service
 
+@Service
 class TaskService(
   private val taskQueryRepository: TaskQueryRepository,
   private val taskRepository: TaskRepository,
