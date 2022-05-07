@@ -1,1 +1,4 @@
-rootProject.name = "todo"
+rootProject.name = "graphql-todo-app"
+
+include(":lib")
+include(":app")
