@@ -28,9 +28,9 @@ directive @specifiedBy(
   ) on SCALAR
 
 type Mutation {
-  CreateTodo(input: TodoInput!): Todo
+  CreateTodo(todoInput: TodoInput!): Todo
   DeleteTodo(todoId: Int!): Todo
-  UpdateTodo(input: TodoInput!, todoId: Int!): Todo
+  UpdateTodo(todoId: Int!, todoInput: TodoInput!): Todo
 }
 
 type Query {

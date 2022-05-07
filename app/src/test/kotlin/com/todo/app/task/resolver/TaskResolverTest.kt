@@ -40,7 +40,7 @@ constructor(
       val mutation =
         GraphqlBody(
           """mutation {
-            |  CreateTodo(input: { name: "${input.name}", completed: ${input.completed} }) {
+            |  CreateTodo(todoInput: { name: "${input.name}", completed: ${input.completed} }) {
             |    id 
             |    createdAt
             |    updatedAt
@@ -93,7 +93,7 @@ constructor(
       val mutation =
         GraphqlBody(
           """mutation {
-            |  UpdateTodo(todoId: ${input.taskId}, input: { name: "${input.name}", completed: ${input.completed} }) {
+            |  UpdateTodo(todoId: ${input.taskId}, todoInput: { name: "${input.name}", completed: ${input.completed} }) {
             |    id 
             |    createdAt
             |    updatedAt
