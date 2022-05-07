@@ -2,6 +2,7 @@ package com.todo.app.task.service
 
 import com.todo.app.task.repository.TaskQueryRepository
 import com.todo.app.task.repository.dto.TaskByUserDto
+import com.todo.app.task.repository.dto.TaskWithUserDto
 import com.todo.app.user.repository.UserRepository
 import com.todo.app.user.repository.dto.UserDto
 import org.springframework.stereotype.Service
@@ -20,4 +21,7 @@ class TaskQueryService(
 
     return Pair(tasks, user)
   }
+
+  fun findOne(id: Long, userId: Long): TaskWithUserDto =
+    taskQueryRepository.findOneWithUser(id, userId)
 }
