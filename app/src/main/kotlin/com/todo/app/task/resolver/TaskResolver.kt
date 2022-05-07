@@ -14,6 +14,9 @@ class TaskResolver(
   // TODO: 인증 구현 후 세션으로 부터 가져오기
   private val userId = 1L
 
+  @GraphQLName("CreateTodo")
+  fun create(input: TodoInput): Todo? = taskService.create(input.toCreateDto(userId)).let(Todo::by)
+
   @GraphQLName("UpdateTodo")
   fun update(todoId: Int, input: TodoInput): Todo? =
     taskService.update(input.toUpdateDto(todoId.toLong(), userId)).let(Todo::by)

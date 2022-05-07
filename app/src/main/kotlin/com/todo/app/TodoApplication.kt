@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 @ConfigurationPropertiesScan
 @EntityScan(basePackages = ["com.todo.lib.entity"])
 @SpringBootApplication
-class AppApplication {
+class TodoApplication {
   @Bean fun wiringFactory() = KotlinDirectiveWiringFactory()
 
   @Bean
@@ -21,5 +21,5 @@ class AppApplication {
 }
 
 fun main(args: Array<String>) {
-  runApplication<AppApplication>(*args)
+  runApplication<TodoApplication>(*args)
 }
