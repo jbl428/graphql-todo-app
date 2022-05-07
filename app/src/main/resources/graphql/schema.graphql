@@ -29,6 +29,7 @@ directive @specifiedBy(
 
 type Mutation {
   DeleteTodo(todoId: Int!): Todo
+  UpdateTodo(input: TodoInput!, todoId: Int!): Todo
 }
 
 type Query {
@@ -53,3 +54,8 @@ type User {
 
 "A type representing a formatted java.time.LocalDateTime"
 scalar DateTime
+
+input TodoInput {
+  completed: Boolean!
+  name: String!
+}

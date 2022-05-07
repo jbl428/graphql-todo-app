@@ -5,6 +5,7 @@ import com.todo.app.extension.GraphqlBody
 import com.todo.app.extension.gqlRequest
 import com.todo.app.extension.withSuccess
 import com.todo.app.task.service.TaskService
+import com.todo.app.task.service.dto.UpdateTaskDto
 import com.todo.lib.entity.task.Task
 import com.todo.lib.entity.user.User
 import io.mockk.every
@@ -25,9 +26,62 @@ constructor(
   @MockkBean private val taskService: TaskService,
 ) {
   @Nested
+  inner class UpdateTodo {
+    @Test
+    fun `주어진 todo 를 수정한다`() {
+      // given
+      val input =
+        UpdateTaskDto(
+          taskId = 100,
+          userId = 1,
+          name = "new name",
+          completed = false,
+        )
+      val mutation =
+        GraphqlBody(
+          """mutation {
+            |  UpdateTodo(todoId: ${input.taskId}, input: { name: "${input.name}", completed: ${input.completed} }) {
+            |    id 
+            |    createdAt
+            |    updatedAt
+            |    name
+            |    completed
+            |    completedAt
+            |    user {
+            |      name
+            |      age
+            |    }
+            |  }
+            |}
+            """.trimMargin()
+        )
+      val task =
+        Task(
+            name = input.name,
+            completed = input.completed,
+            completedAt = null,
+            user = User(name = "user", age = 20).apply { id = input.userId }
+          )
+          .apply {
+            id = input.taskId
+            createdAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now()
+          }
+
+      every { taskService.update(input, any()) } returns task
+
+      // when
+      val response = webTestClient.gqlRequest(mutation)
+
+      // then
+      response.withSuccess("UpdateTodo") { expect("id").isEqualTo(input.taskId) }
+    }
+  }
+
+  @Nested
   inner class DeleteTodo {
     @Test
-    fun `지정한 todo 삭제한다`() {
+    fun `주어진 todo 를 삭제한다`() {
       // given
       val todoId = 1234L
       val mutation =
