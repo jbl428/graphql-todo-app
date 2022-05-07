@@ -7,6 +7,5 @@ import com.todo.lib.entity.task.Task
 interface TaskQueryRepository {
   fun findOneByUser(id: Long, userId: Long): Task
   fun findByUser(userId: Long): List<TaskByUserDto>
-
   fun findOneWithUser(id: Long, userId: Long): TaskWithUserDto
 }

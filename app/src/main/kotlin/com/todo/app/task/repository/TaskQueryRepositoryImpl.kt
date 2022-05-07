@@ -1,6 +1,7 @@
 package com.todo.app.task.repository
 
 import com.linecorp.kotlinjdsl.querydsl.expression.col
+import com.linecorp.kotlinjdsl.querydsl.from.fetch
 import com.linecorp.kotlinjdsl.querydsl.from.join
 import com.linecorp.kotlinjdsl.spring.data.SpringDataQueryFactory
 import com.linecorp.kotlinjdsl.spring.data.listQuery
@@ -20,7 +21,7 @@ class TaskQueryRepositoryImpl(
     springDataQueryFactory.singleQuery {
       select(entity(Task::class))
       from(Task::class)
-      join(Task::user)
+      fetch(Task::user)
       where(
         and(
           col(Task::id).equal(id),
