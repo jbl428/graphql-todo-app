@@ -2,6 +2,7 @@ package com.todo.app.task.service
 
 import com.todo.app.task.repository.TaskQueryRepository
 import com.todo.app.task.repository.TaskRepository
+import com.todo.app.task.service.dto.CreateTaskDto
 import com.todo.app.task.service.dto.UpdateTaskDto
 import com.todo.lib.entity.task.Task
 import com.todo.lib.entity.user.User
@@ -13,8 +14,10 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.justRun
+import io.mockk.slot
 import io.mockk.verify
 import java.time.LocalDateTime
+import javax.persistence.EntityManager
 import javax.persistence.NoResultException
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -27,6 +30,8 @@ internal class TaskServiceTest {
   @MockK private lateinit var taskQueryRepository: TaskQueryRepository
 
   @MockK private lateinit var taskRepository: TaskRepository
+
+  @MockK private lateinit var em: EntityManager
 
   @Nested
   inner class Delete {
@@ -161,6 +166,49 @@ internal class TaskServiceTest {
 
       // then
       result.completedAt.shouldBeNull()
+    }
+  }
+
+  @Nested
+  inner class Create {
+    @Test
+    fun `새로운 미완료된 task 를 생성한다`() {
+      // given
+      val dto = CreateTaskDto(userId = 123, name = "new name", completed = false)
+      val slot = slot<Task>()
+
+      every { taskRepository.save(capture(slot)) } answers { slot.captured }
+      every { em.getReference(User::class.java, dto.userId) } returns
+        User(name = "user", age = 30).also { it.id = dto.userId }
+
+      // when
+      val result = taskService.create(dto)
+
+      // then
+      verify { taskRepository.save(any()) }
+
+      result.name shouldBe dto.name
+      result.completed shouldBe dto.completed
+      result.user.id shouldBe dto.userId
+      result.completedAt.shouldBeNull()
+    }
+
+    @Test
+    fun `새로운 완료된 task 를 생성한다`() {
+      // given
+      val dto = CreateTaskDto(userId = 123, name = "new name", completed = true)
+      val expectedCompletedAt = LocalDateTime.now()
+      val slot = slot<Task>()
+
+      every { taskRepository.save(capture(slot)) } answers { slot.captured }
+      every { em.getReference(User::class.java, dto.userId) } returns
+        User(name = "user", age = 30).also { it.id = dto.userId }
+
+      // when
+      val result = taskService.create(dto, expectedCompletedAt)
+
+      // then
+      result.completedAt shouldBe expectedCompletedAt
     }
   }
 }
