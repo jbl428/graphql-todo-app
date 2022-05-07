@@ -3,7 +3,7 @@ package com.todo.app.task.service
 import com.todo.app.task.repository.TaskQueryRepository
 import com.todo.app.task.repository.dto.TaskByUserDto
 import com.todo.app.user.repository.UserRepository
-import com.todo.lib.entity.user.User
+import com.todo.app.user.repository.dto.UserDto
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -14,7 +14,6 @@ import java.time.LocalDateTime
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.data.repository.findByIdOrNull
 
 @ExtendWith(MockKExtension::class)
 internal class TaskQueryServiceTest {
@@ -31,7 +30,7 @@ internal class TaskQueryServiceTest {
       // given
       val userId = 123L
 
-      every { userRepository.findByIdOrNull(userId) } returns null
+      every { userRepository.findOne(userId) } returns null
 
       // when
       val result = shouldThrow<IllegalArgumentException> { taskQueryService.findAll(userId) }
@@ -63,10 +62,14 @@ internal class TaskQueryServiceTest {
             completedAt = null,
           ),
         )
-      val expectedUser = User(name = "user1", age = 10)
+      val expectedUser =
+        object : UserDto {
+          override val name: String = "user"
+          override val age: Int = 20
+        }
 
+      every { userRepository.findOne(userId) } returns expectedUser
       every { taskQueryRepository.findByUser(userId) } returns expectedTasks
-      every { userRepository.findByIdOrNull(userId) } returns expectedUser
 
       // when
       val (tasks, user) = taskQueryService.findAll(userId)
