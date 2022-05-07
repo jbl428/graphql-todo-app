@@ -17,10 +17,12 @@ class TaskService(
   private val em: EntityManager,
 ) {
 
-  fun delete(id: Long, userId: Long) {
+  fun delete(id: Long, userId: Long): Task {
     val task = taskQueryRepository.findOneByUser(id, userId)
 
     taskRepository.deleteById(task.id)
+
+    return task
   }
 
   fun update(dto: UpdateTaskDto, now: LocalDateTime = LocalDateTime.now()): Task {
