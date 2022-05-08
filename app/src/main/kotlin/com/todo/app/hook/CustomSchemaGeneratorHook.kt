@@ -33,20 +33,20 @@ private object DateTimeCoercing : Coercing<LocalDateTime, String> {
   private var formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
   override fun parseValue(input: Any): LocalDateTime =
-    runCatching { LocalDateTime.parse(serialize(input), formatter) }
-      .getOrElse { throw CoercingParseValueException("Expected valid DateTime but was $input") }
+    runCatching { LocalDateTime.parse(serialize(input), formatter) }.getOrElse {
+      throw CoercingParseValueException("Expected valid DateTime but was $input")
+    }
 
   override fun parseLiteral(input: Any): LocalDateTime {
-    return runCatching { LocalDateTime.parse(serialize(input), formatter) }
-      .getOrElse {
-        throw CoercingParseLiteralException("Expected valid DateTime literal but was $input")
-      }
+    return runCatching { LocalDateTime.parse(serialize(input), formatter) }.getOrElse {
+      throw CoercingParseLiteralException("Expected valid DateTime literal but was $input")
+    }
   }
 
   override fun serialize(dataFetcherResult: Any): String =
     runCatching {
-        (dataFetcherResult as? LocalDateTime)?.format(formatter) ?: dataFetcherResult.toString()
-      }
+      (dataFetcherResult as? LocalDateTime)?.format(formatter) ?: dataFetcherResult.toString()
+    }
       .getOrElse {
         throw CoercingSerializeException(
           "Data fetcher result $dataFetcherResult cannot be serialized to a String"
