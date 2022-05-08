@@ -14,8 +14,7 @@ class TaskQueryResolver(
   private val userId = 1L
 
   @GraphQLName("todos")
-  fun find(): List<Todo> =
-    taskQueryService.find(userId).let { (tasks, user) -> tasks.map { Todo.by(it, user) } }
+  fun find(): List<Todo> = taskQueryService.find(userId).let { tasks -> tasks.map { Todo.by(it) } }
 
   @GraphQLName("todo")
   fun findOne(todoId: Int): Todo? = taskQueryService.findOne(todoId.toLong(), userId).let(Todo::by)
