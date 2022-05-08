@@ -38,7 +38,7 @@ subprojects {
     }
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("io.mockk:mockk:1.12.3")
-    testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.2.5")
+    testImplementation("io.kotest:kotest-assertions-core:5.2.3")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1")
   }
