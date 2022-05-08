@@ -1,5 +1,7 @@
 # graphql-todo-app
 
+![build](https://github.com/jbl428/graphql-todo-app/actions/workflows/gradle.yml/badge.svg)
+
 간단한 graphql todo api
 
 ## 실행 방법
