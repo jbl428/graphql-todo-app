@@ -16,12 +16,13 @@ class TaskResolver(
 
   @GraphQLName("CreateTodo")
   fun create(todoInput: TodoInput): Todo? =
-    taskService.create(todoInput.toCreateDto(userId)).let(Todo::by)
+    taskService.create(todoInput.toCreateDto(userId)).let { Todo.by(it, userId) }
 
   @GraphQLName("UpdateTodo")
   fun update(todoId: Int, todoInput: TodoInput): Todo? =
-    taskService.update(todoInput.toUpdateDto(todoId.toLong(), userId)).let(Todo::by)
+    taskService.update(todoInput.toUpdateDto(todoId.toLong(), userId)).let { Todo.by(it, userId) }
 
   @GraphQLName("DeleteTodo")
-  fun delete(todoId: Int): Todo? = taskService.delete(todoId.toLong(), userId).let(Todo::by)
+  fun delete(todoId: Int): Todo? =
+    taskService.delete(todoId.toLong(), userId).let { Todo.by(it, userId) }
 }

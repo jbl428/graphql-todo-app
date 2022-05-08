@@ -17,13 +17,13 @@ data class Todo(
   val completedAt: LocalDateTime?,
   val createdAt: LocalDateTime?,
   val updatedAt: LocalDateTime?,
-  @GraphQLIgnore val userId: Long = 1,
+  @GraphQLIgnore val userId: Long,
 ) {
   fun user(environment: DataFetchingEnvironment): CompletableFuture<UserInfo> =
     environment.getValueFromDataLoader(UserInfoDataLoader.name, userId)
 
   companion object {
-    fun by(task: Task): Todo =
+    fun by(task: Task, userId: Long): Todo =
       Todo(
         name = task.name,
         completed = task.completed,
@@ -31,9 +31,10 @@ data class Todo(
         completedAt = task.completedAt,
         createdAt = task.createdAt,
         updatedAt = task.updatedAt,
+        userId = userId,
       )
 
-    fun by(taskByUserDto: TaskByUserDto): Todo =
+    fun by(taskByUserDto: TaskByUserDto, userId: Long): Todo =
       Todo(
         name = taskByUserDto.name,
         completed = taskByUserDto.completed,
@@ -41,6 +42,7 @@ data class Todo(
         completedAt = taskByUserDto.completedAt,
         createdAt = taskByUserDto.createdAt,
         updatedAt = taskByUserDto.updatedAt,
+        userId = userId,
       )
   }
 }
