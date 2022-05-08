@@ -52,5 +52,11 @@ subprojects {
 
   ktfmt { googleStyle() }
 
-  tasks.withType<Test> { useJUnitPlatform() }
+  tasks.withType<Test> {
+    useJUnitPlatform()
+    reports {
+      html.required.set(false)
+      junitXml.required.set(true)
+    }
+  }
 }
