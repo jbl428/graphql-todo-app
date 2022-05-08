@@ -47,10 +47,6 @@ constructor(
             |    name
             |    completed
             |    completedAt
-            |    user {
-            |      name
-            |      age
-            |    }
             |  }
             |}
             """.trimMargin()
@@ -100,10 +96,6 @@ constructor(
             |    name
             |    completed
             |    completedAt
-            |    user {
-            |      name
-            |      age
-            |    }
             |  }
             |}
             """.trimMargin()
@@ -147,10 +139,6 @@ constructor(
             |    name
             |    completed
             |    completedAt
-            |    user {
-            |      name
-            |      age
-            |    }
             |  }
             |}
             """.trimMargin()
