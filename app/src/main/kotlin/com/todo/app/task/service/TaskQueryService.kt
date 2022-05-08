@@ -19,9 +19,5 @@ class TaskQueryService(
 
     val tasks = taskQueryRepository.findByUser(userId)
 
-    return Pair(tasks, user)
-  }
-
-  fun findOne(id: Long, userId: Long): TaskWithUserDto =
-    taskQueryRepository.findOneWithUser(id, userId)
+  fun findOne(id: Long, userId: Long): Task = taskQueryRepository.findOneByUser(id, userId)
 }
