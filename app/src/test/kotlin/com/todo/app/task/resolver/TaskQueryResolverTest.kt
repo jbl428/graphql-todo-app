@@ -5,9 +5,11 @@ import com.todo.app.extension.GraphqlBody
 import com.todo.app.extension.gqlRequest
 import com.todo.app.extension.withSuccess
 import com.todo.app.task.repository.dto.TaskByUserDto
-import com.todo.app.task.repository.dto.TaskWithUserDto
 import com.todo.app.task.service.TaskQueryService
 import com.todo.app.user.repository.dto.UserDto
+import com.todo.app.user.service.UserQueryService
+import com.todo.lib.entity.task.Task
+import com.todo.lib.entity.user.User
 import io.mockk.every
 import java.time.LocalDateTime
 import org.junit.jupiter.api.Nested
@@ -24,6 +26,7 @@ internal class TaskQueryResolverTest
 constructor(
   private val webTestClient: WebTestClient,
   @MockkBean private val taskQueryService: TaskQueryService,
+  @MockkBean private val userQueryService: UserQueryService,
 ) {
   @Nested
   inner class Todos {
@@ -60,11 +63,13 @@ constructor(
         )
       val userDto =
         object : UserDto {
+          override val id: Long = 1
           override val name: String = "userName"
           override val age: Int = 20
         }
 
-      every { taskQueryService.find(1) } returns Pair(listOf(taskDto), userDto)
+      every { taskQueryService.find(1) } returns listOf(taskDto)
+      every { userQueryService.findByIds(listOf(userDto.id)) } returns listOf(userDto)
 
       // when
       val response = webTestClient.gqlRequest(query)
@@ -107,33 +112,41 @@ constructor(
             |}
             """.trimMargin()
         )
-      val dto =
-        TaskWithUserDto(
-          id = todoId,
-          createdAt = LocalDateTime.of(2022, 1, 1, 0, 0),
-          updatedAt = LocalDateTime.of(2022, 2, 2, 0, 0),
-          taskName = "taskName",
-          completed = true,
-          completedAt = LocalDateTime.of(2022, 3, 3, 0, 0),
-          userName = "userName",
-          age = 20,
-        )
+      val task =
+        Task(
+            name = "name",
+            completed = true,
+            completedAt = LocalDateTime.of(2022, 3, 3, 0, 0),
+            user = User(name = "userName", age = 20),
+          )
+          .apply {
+            id = todoId
+            createdAt = LocalDateTime.of(2022, 1, 1, 0, 0)
+            updatedAt = LocalDateTime.of(2022, 2, 2, 0, 0)
+          }
+      val userDto =
+        object : UserDto {
+          override val id: Long = 1
+          override val name: String = "userName"
+          override val age: Int = 20
+        }
 
-      every { taskQueryService.findOne(dto.id, 1) } returns dto
+      every { taskQueryService.findOne(task.id, 1) } returns task
+      every { userQueryService.findByIds(listOf(userDto.id)) } returns listOf(userDto)
 
       // when
       val response = webTestClient.gqlRequest(query)
 
       // then
       response.withSuccess("todo") {
-        expect("id").isEqualTo(dto.id)
+        expect("id").isEqualTo(task.id)
         expect("createdAt").isEqualTo("2022-01-01 00:00:00")
         expect("updatedAt").isEqualTo("2022-02-02 00:00:00")
-        expect("name").isEqualTo(dto.taskName)
-        expect("completed").isEqualTo(dto.completed)
+        expect("name").isEqualTo(task.name)
+        expect("completed").isEqualTo(task.completed)
         expect("completedAt").isEqualTo("2022-03-03 00:00:00")
-        expect("user.name").isEqualTo(dto.userName)
-        expect("user.age").isEqualTo(dto.age)
+        expect("user.name").isEqualTo(userDto.name)
+        expect("user.age").isEqualTo(userDto.age)
       }
     }
   }

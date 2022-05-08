@@ -2,10 +2,9 @@ package com.todo.app.task.service
 
 import com.todo.app.task.repository.TaskQueryRepository
 import com.todo.app.task.repository.dto.TaskByUserDto
-import com.todo.app.task.repository.dto.TaskWithUserDto
-import com.todo.app.user.repository.UserRepository
-import com.todo.app.user.repository.dto.UserDto
-import io.kotest.assertions.throwables.shouldThrow
+import com.todo.lib.entity.task.Task
+import com.todo.lib.entity.user.User
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -22,26 +21,10 @@ internal class TaskQueryServiceTest {
 
   @MockK private lateinit var taskQueryRepository: TaskQueryRepository
 
-  @MockK private lateinit var userRepository: UserRepository
-
   @Nested
   inner class Find {
     @Test
-    fun `존재하지 않는 사용자로 요청 시 에러가 발생한다`() {
-      // given
-      val userId = 123L
-
-      every { userRepository.findOne(userId) } returns null
-
-      // when
-      val result = shouldThrow<IllegalArgumentException> { taskQueryService.find(userId) }
-
-      // then
-      result.message shouldBe "사용자가 존재하지 않습니다"
-    }
-
-    @Test
-    fun `사용자가 소유한 task 목록과 사용자 정보를 가져온다`() {
+    fun `task 목록을 가져온다`() {
       // given
       val userId = 123L
       val expectedTasks =
@@ -63,49 +46,38 @@ internal class TaskQueryServiceTest {
             completedAt = null,
           ),
         )
-      val expectedUser =
-        object : UserDto {
-          override val name: String = "user"
-          override val age: Int = 20
-        }
 
-      every { userRepository.findOne(userId) } returns expectedUser
       every { taskQueryRepository.findByUser(userId) } returns expectedTasks
 
       // when
-      val (tasks, user) = taskQueryService.find(userId)
+      val result = taskQueryService.find(userId)
 
       // then
-      tasks shouldBe expectedTasks
-      user shouldBe expectedUser
+      result shouldHaveSize 2
     }
   }
 
   @Nested
   inner class FindOne {
     @Test
-    fun `task 와 사용자 정보를 가져온다`() {
+    fun `task 상세정보를 가져온다`() {
       // given
-      val dto =
-        TaskWithUserDto(
-          id = 10,
-          createdAt = LocalDateTime.now(),
-          updatedAt = LocalDateTime.now(),
-          taskName = "task",
+      val task =
+        Task(
+          name = "task",
           completed = false,
           completedAt = null,
-          userName = "user",
-          age = 20,
+          user = User("user", 20),
         )
       val userId = 123L
 
-      every { taskQueryRepository.findOneWithUser(dto.id, userId) } returns dto
+      every { taskQueryRepository.findOneByUser(task.id, userId) } returns task
 
       // when
-      val result = taskQueryService.findOne(dto.id, userId)
+      val result = taskQueryService.findOne(task.id, userId)
 
       // then
-      result shouldBe dto
+      result shouldBe task
     }
   }
 }
