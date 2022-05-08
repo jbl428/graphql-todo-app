@@ -1,11 +1,14 @@
 package com.todo.app.task.resolver.dto
 
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.todo.app.task.repository.dto.TaskByUserDto
-import com.todo.app.task.repository.dto.TaskWithUserDto
-import com.todo.app.user.repository.dto.UserDto
+import com.todo.app.user.resolver.UserInfoDataLoader
 import com.todo.app.user.resolver.dto.UserInfo
 import com.todo.lib.entity.task.Task
+import graphql.schema.DataFetchingEnvironment
 import java.time.LocalDateTime
+import java.util.concurrent.CompletableFuture
 
 data class Todo(
   val name: String,
@@ -14,8 +17,11 @@ data class Todo(
   val completedAt: LocalDateTime?,
   val createdAt: LocalDateTime?,
   val updatedAt: LocalDateTime?,
-  val user: UserInfo,
+  @GraphQLIgnore val userId: Long = 1,
 ) {
+  fun user(environment: DataFetchingEnvironment): CompletableFuture<UserInfo> =
+    environment.getValueFromDataLoader(UserInfoDataLoader.name, userId)
+
   companion object {
     fun by(task: Task): Todo =
       Todo(
@@ -25,21 +31,9 @@ data class Todo(
         completedAt = task.completedAt,
         createdAt = task.createdAt,
         updatedAt = task.updatedAt,
-        user = UserInfo(task.user.name, task.user.age),
       )
 
-    fun by(dto: TaskWithUserDto): Todo =
-      Todo(
-        name = dto.taskName,
-        completed = dto.completed,
-        id = dto.id.toInt(),
-        completedAt = dto.completedAt,
-        createdAt = dto.createdAt,
-        updatedAt = dto.updatedAt,
-        user = UserInfo(dto.userName, dto.age),
-      )
-
-    fun by(taskByUserDto: TaskByUserDto, userDto: UserDto): Todo =
+    fun by(taskByUserDto: TaskByUserDto): Todo =
       Todo(
         name = taskByUserDto.name,
         completed = taskByUserDto.completed,
@@ -47,7 +41,6 @@ data class Todo(
         completedAt = taskByUserDto.completedAt,
         createdAt = taskByUserDto.createdAt,
         updatedAt = taskByUserDto.updatedAt,
-        user = UserInfo(userDto.name, userDto.age),
       )
   }
 }
