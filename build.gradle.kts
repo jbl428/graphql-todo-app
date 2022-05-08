@@ -31,7 +31,6 @@ subprojects {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("io.arrow-kt:arrow-core:1.0.1")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -39,7 +38,6 @@ subprojects {
     }
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("io.mockk:mockk:1.12.3")
-    testImplementation("io.kotest:kotest-assertions-core:5.2.3")
     testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.2.5")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1")
